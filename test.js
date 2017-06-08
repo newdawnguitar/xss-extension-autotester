@@ -10,7 +10,7 @@ var inputsThatShouldPass = [];
 var inputsThatShouldBlock = [];	
 
 
-var testInputs = fs.readFileSync('scripts.txt').toString().split("\n");
+var testInputs = fs.readFileSync('inputs.txt').toString().split("\n");
 determineExpectedBehavior();
 
 function initWebDriver(loadExtension){
