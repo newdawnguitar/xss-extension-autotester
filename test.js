@@ -114,11 +114,13 @@ function testBlockingInputs(countDown){
 		if(title != "Test your XSS extension here!"){
 			console.log("TEST PASSED");
 			console.log("input: ", input);
+			console.log("type: ", testBox);
 			console.log("Reason: Input was successfully blocked.")
 		}
 		else{
 			console.log("**** TEST FAILED ****")
 			console.log("input: ", input);
+			console.log("type: ", testBox);
 			console.log("Reason: Input should have been blocked by extension.")
 		}
 
