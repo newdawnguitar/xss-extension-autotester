@@ -8,6 +8,7 @@ var webdriver = require('selenium-webdriver'),
 var driver;	
 var inputsThatShouldPass = [];
 var inputsThatShouldBlock = [];	
+var testBox = "GET";
 
 
 var testInputs = fs.readFileSync('inputs.txt').toString().split("\n");
@@ -30,6 +31,9 @@ function initWebDriver(loadExtension){
 
 //This checks each script without the xss-auditor and without the extension to see what desired behavior should be
 function determineExpectedBehavior(){
+		inputsThatShouldPass = []
+		inputsThatShouldBlock = []
+
 		initWebDriver(false);
 		checkBehavior(testInputs.length-1)
 
@@ -45,25 +49,44 @@ function testAgainstExpectedBehavior(){
 function finished(){
 	driver.quit();
 	console.log("");
-	console.log("Tests Finished.")
+	if(testBox === "GET"){
+		testBox = "POST";
+		console.log("Finished GET Test.")
+		console.log("Beginning POST Tests...")
+		determineExpectedBehavior();
+	}
+	else{
+		console.log("All Tests Finished.")	
+	}
+	
 }
 
 function testPassingInputs(countDown){
+
+		var boxId = "get_"; 
+	var buttonId = "getsub";
+	if(testBox === "POST"){
+		boxId = "post_";
+		buttonId = "postsub";
+	}
+
 	var input = inputsThatShouldPass[countDown]
 	driver.get('http://www.cc.gatech.edu/~rgiri8/xss_test.html');
-	driver.findElement(By.id('get_')).sendKeys(input);
-	driver.findElement(By.id('getsub')).click();
+	driver.findElement(By.id(boxId)).sendKeys(input);
+	driver.findElement(By.id(buttonId)).click();
 	driver.getTitle().then(function(title){
 		console.log("")
 		console.log("")
 		if(title == "Test your XSS extension here!"){
 			console.log("TEST PASSED");
 			console.log("input: ", input);
-			console.log("Reason: Input successfully was NOT blocked.")
+			console.log("type: ", testBox);
+			console.log("Reason: Input was correctly NOT blocked.")
 		}
 		else{
 			console.log("**** TEST FAILED ****")
 			console.log("input: ", input);
+			console.log("type: ", testBox);
 			console.log("Reason: Input was blocked by extension, but should not have.")
 		}
 
@@ -73,10 +96,18 @@ function testPassingInputs(countDown){
 }
 
 function testBlockingInputs(countDown){
+
+		var boxId = "get_"; 
+	var buttonId = "getsub";
+	if(testBox === "POST"){
+		boxId = "post_";
+		buttonId = "postsub";
+	}
+
 	var input = inputsThatShouldBlock[countDown]
 	driver.get('http://www.cc.gatech.edu/~rgiri8/xss_test.html');
-	driver.findElement(By.id('get_')).sendKeys(input);
-	driver.findElement(By.id('getsub')).click();
+	driver.findElement(By.id(boxId)).sendKeys(input);
+	driver.findElement(By.id(buttonId)).click();
 	driver.getTitle().then(function(title){
 		console.log("")
 		console.log("")
@@ -97,10 +128,18 @@ function testBlockingInputs(countDown){
 }
 
 function checkBehavior(countDown){
+
+	var boxId = "get_"; 
+	var buttonId = "getsub";
+	if(testBox === "POST"){
+		boxId = "post_";
+		buttonId = "postsub";
+	}
+
 	var script = testInputs[countDown];
 	driver.get('http://www.cc.gatech.edu/~rgiri8/xss_test.html');
-	driver.findElement(By.id('get_')).sendKeys(script);
-	driver.findElement(By.id('getsub')).click();
+	driver.findElement(By.id(boxId)).sendKeys(script);
+	driver.findElement(By.id(buttonId)).click();
 
 
 
