@@ -1,15 +1,33 @@
-var relativePateOfExtension = "../extension_sample";
+var argv = require('minimist')(process.argv.slice(2));
 
+if(argv["h"]){
+	console.log("Usage: node " + process.argv[1] + " [-e /path/to/extension] [-v]")
+	console.log("   -v - Enables verbose logging which prints both success and failure rather than just failure.")
+	return
+}
+
+
+if(argv["e"]){
+	var relativePateOfExtension = argv["e"]  
+} else if(argv["extension-path"]){
+	var relativePateOfExtension = argv["extension-path"]
+} else {
+    var relativePateOfExtension = "../extension_sample";
+}
 
 var fs = require('fs');
 var webdriver = require('selenium-webdriver'),
 		By = webdriver.By,
 		until = webdriver.until;
+var chrome = require('selenium-webdriver/chrome');
+var path = require('chromedriver').path;
+chrome.setDefaultService(new chrome.ServiceBuilder(path).build());
+
 var driver;	
 var inputsThatShouldPass = [];
 var inputsThatShouldBlock = [];	
 var testBox = "GET";
-
+var failedCount = 0;
 
 var testInputs = fs.readFileSync('inputs.txt').toString().split("\n");
 determineExpectedBehavior();
@@ -36,14 +54,12 @@ function determineExpectedBehavior(){
 
 		initWebDriver(false);
 		checkBehavior(testInputs.length-1)
-
 }
 
 function testAgainstExpectedBehavior(){
 		driver.quit();
 		initWebDriver(true);
 		testPassingInputs(inputsThatShouldPass.length-1)
-
 }
 
 function finished(){
@@ -51,12 +67,14 @@ function finished(){
 	console.log("");
 	if(testBox === "GET"){
 		testBox = "POST";
-		console.log("Finished GET Test.")
-		console.log("Beginning POST Tests...")
+		if(argv["v"]){
+			console.log("Finished GET Test.")
+			console.log("Beginning POST Tests...")
+		}
 		determineExpectedBehavior();
 	}
 	else{
-		console.log("All Tests Finished.")	
+		console.log("Tests complete. " + failedCount + " failed tests.")
 	}
 	
 }
@@ -75,19 +93,22 @@ function testPassingInputs(countDown){
 	driver.findElement(By.id(boxId)).sendKeys(input);
 	driver.findElement(By.id(buttonId)).click();
 	driver.getTitle().then(function(title){
-		console.log("")
-		console.log("")
 		if(title == "Test your XSS extension here!"){
-			console.log("TEST PASSED");
-			console.log("input: ", input);
-			console.log("type: ", testBox);
-			console.log("Reason: Input was correctly NOT blocked.")
+			if(argv["v"]){
+				console.log("")
+				console.log("TEST PASSED");
+				console.log("input: ", input);
+				console.log("type: ", testBox);
+				console.log("Reason: Input was correctly NOT blocked.")
+			}
 		}
 		else{
+			console.log("")
 			console.log("**** TEST FAILED ****")
 			console.log("input: ", input);
 			console.log("type: ", testBox);
-			console.log("Reason: Input was blocked by extension, but should not have.")
+			console.log("Reason: Input was blocked by extension, but should NOT have been!")
+			failedCount += 1;
 		}
 
 		if(countDown > 0){testPassingInputs(countDown-1);}else{testBlockingInputs(inputsThatShouldBlock.length-1)}
@@ -109,19 +130,22 @@ function testBlockingInputs(countDown){
 	driver.findElement(By.id(boxId)).sendKeys(input);
 	driver.findElement(By.id(buttonId)).click();
 	driver.getTitle().then(function(title){
-		console.log("")
-		console.log("")
 		if(title != "Test your XSS extension here!"){
-			console.log("TEST PASSED");
-			console.log("input: ", input);
-			console.log("type: ", testBox);
-			console.log("Reason: Input was successfully blocked.")
+			if(argv["v"]){
+				console.log("")
+				console.log("TEST PASSED");
+				console.log("input: ", input);
+				console.log("type: ", testBox);
+				console.log("Reason: Input was successfully blocked.")
+			}
 		}
 		else{
+			console.log("")
 			console.log("**** TEST FAILED ****")
 			console.log("input: ", input);
 			console.log("type: ", testBox);
-			console.log("Reason: Input should have been blocked by extension.")
+			console.log("Reason: Input should have been blocked by extension but was NOT.")
+			failedCount += 1;
 		}
 
 		if(countDown > 0){testBlockingInputs(countDown-1);}else{finished()}
@@ -174,4 +198,3 @@ function checkBehavior(countDown){
 
 
 }
-

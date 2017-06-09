@@ -10,17 +10,13 @@ $ cd xss-extension-autotester
 $ npm i
 ```
 
-### Setup
-
- 1. Edit "relativePateOfExtension" variable in test.js to point to the relative path to the folder of your extension. This is extremely imporant that you point to the correct relative location.
- 2. Add inputs to discover and test by adding them to a new line in the inputs.txt file.
- 
 ### Running
 
+Use the commands below to run. Make sure you define the relative path of the location of the extension!
 
 ```sh
 $ cd xss-extension-autotester
-$ Node test.js
+$ Node test.js -e /path/to/extension/folder
 ```
 
 ### What's going on here?
